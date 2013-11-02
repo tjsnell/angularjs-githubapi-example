@@ -1,0 +1,80 @@
+<!doctype html>
+<html ng-app="ghApp">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <title>Github API Webapp using AngularJS - Not So Clever Demo</title>
+    <meta name="author" content="Tracy Snell">
+    <link rel="stylesheet" type="text/css" media="all" href="css/styles.css">
+</head>
+
+<body>
+<div ng-controller="GitHubCtrl">
+    <div id="w">
+        <div>
+            <h1>Simple Github API Webapp</h1>
+
+            <p>Enter a single Github username below and click the button to display profile info.</p>
+
+            <input type="text" id="ghusername" ng-model="username" placeholder="Github username...">
+            <a href="#" id="ghsubmitbtn" ng-click="getGitInfo()">Pull User Data</a>
+
+            <div id="ghapidata" class="clearfix"></div>
+        </div>
+        <div ng-show="userNotFound">
+            <h2>No User Info Found</h2>
+        </div>
+        <div ng-show="loaded">
+
+            <h2> {{gh.name}}
+                <span class="smallname">(@<a href="{{gh.html_url}}" target="_blank"> {{gh.login}} </a>)</span>
+            </h2>
+
+            <div class="ghcontent">
+                <div class="avi">
+                    <a href="{{ gh.html_url }}" target="_blank">
+                        <img src="{{ gh.avatar_url }}" width="80" height="80" alt="{{ gh.login }}"></a>
+                </div>
+                Followers: {{ gh.followers }} - Following: {{ gh.following }}<br>Repos: {{ gh.public_repos }}</p>
+            </div>
+
+            <div class="repolist clearfix">
+                <p ng-hide="reposFound">No repos!</p>
+
+                <div ng-show="reposFound">
+                    <p><strong>Repos List:</strong></p>
+                    <ul ng-repeat="repo in repos">
+                        <li><a href="{{repo.html_url}}" target="_blank"> {{repo.name}} </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    angular.module('ghApp', [])
+            .controller('GitHubCtrl', function ($scope, $http) {
+                $scope.getGitInfo = function () {
+                    $scope.userNotFound = false;
+                    $scope.loaded = false;
+
+                    $http.get("https://api.github.com/users/" + $scope.username)
+                            .success(function (data) {
+                                $scope.gh = data;
+                                $scope.loaded = true;
+                            })
+                            .error(function () {
+                                $scope.userNotFound = true;
+                            });
+                    $http.get("https://api.github.com/users/" + $scope.username + "/repos").success(function (data) {
+                        $scope.repos = data;
+                        $scope.reposFound = data.length > 0;
+                    });
+                }
+            });
+</script>
+
+</body>
+</html>
