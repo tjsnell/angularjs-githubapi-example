@@ -62,6 +62,7 @@
 
                     $http.get("https://api.github.com/users/" + $scope.username)
                             .success(function (data) {
+                                if (data.name == "") data.name = data.login;
                                 $scope.gh = data;
                                 $scope.loaded = true;
                             })
